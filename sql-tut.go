@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -39,9 +41,10 @@ func getCurrentDb(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", getCurrentDb)
+	router := mux.NewRouter()
+	router.HandleFunc("/", getCurrentDb).Methods("GET")
 	defer db.Close()
-	err := http.ListenAndServe(CONN_HOST+":"+CONN_PORT, nil)
+	err := http.ListenAndServe(CONN_HOST+":"+CONN_PORT, router)
 	if err != nil {
 		log.Fatal("error starting http server ::", err)
 		return
